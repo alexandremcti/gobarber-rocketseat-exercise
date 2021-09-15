@@ -4,6 +4,7 @@ import { injectable, inject } from "tsyringe";
 import Appointment from "@modules/appointments/infra/typeorm/entities/Appointment";
 import AppError from "@shared/errors/AppError";
 import INotificationsRepository from '@modules/notifications/repositories/INotificationsRepository';
+import ICacheProvider from "@shared/container/providers/CacheProvider/models/ICacheProvider";
 import IAppointmentsRepository from "../repositories/IAppointmentsRepository";
 
 // Quando criamos interfaces dentro de services que serão usadas como parâmetros de um método execute
@@ -23,6 +24,9 @@ class CreateAppointmentService {
 
         @inject('NotificationsRepository')
         private notificationsRepository: INotificationsRepository,
+
+        @inject("CacheProvider")
+        private cacheProvider: ICacheProvider,
     ) { }
 
     public async execute({
@@ -48,6 +52,7 @@ class CreateAppointmentService {
 
         const findAppointmentInsSameDate = await this.appointmentsRepository.findByDate(
             appointmentDate,
+            provider_id,
         );
 
         if (findAppointmentInsSameDate) {
@@ -66,6 +71,10 @@ class CreateAppointmentService {
             recipient_id: provider_id,
             content: `Novo agendamento para dia ${dateFormatted}`,
         });
+
+        await this.cacheProvider.invalidate(
+            `provider-appointments:${provider_id}:${format(appointment.date, "yyyy-m-d")}`
+        )
 
         return appointment;
     }

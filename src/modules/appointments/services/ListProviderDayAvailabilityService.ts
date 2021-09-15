@@ -37,8 +37,6 @@ export default class ListProviderDayAvailabilityService {
             },
         );
 
-        console.log(appointments);
-
         const startHour = 8;
 
         const eachHourArray = Array.from(
@@ -46,7 +44,7 @@ export default class ListProviderDayAvailabilityService {
             (_, index) => index + startHour,
         );
 
-        const currentHour = new Date(Date.now());
+        const currentDate = new Date(Date.now());
 
         const availability = eachHourArray.map(hour => {
             const appointmentsInHour = appointments.filter(appointment => {
@@ -57,7 +55,7 @@ export default class ListProviderDayAvailabilityService {
 
             return {
                 hour,
-                available: !appointmentsInHour && isAfter(hour, currentHour),
+                available: !appointmentsInHour && isAfter(compareDate, currentDate),
             };
         });
 

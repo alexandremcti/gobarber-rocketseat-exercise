@@ -11,7 +11,7 @@ export default class ProvidersController {
 
         const listProviders = container.resolve(ListProvidersService);
 
-        const providers = listProviders.execute({ user_id });
+        const providers = await listProviders.execute({ user_id });
 
         return response.json(providers);
     }
